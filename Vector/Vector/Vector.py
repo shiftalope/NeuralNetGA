@@ -1,5 +1,4 @@
 import numpy as np
-import random as rand
 
 #2 Dimensional Vector Class
 class Vector2D():

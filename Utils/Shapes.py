@@ -38,8 +38,10 @@ class Point():
         if self.y < 0: self.y += 800
     
     def updateVel(self):
-        self.ax = MAX_ACCEL * self.ax
-        self.ay = MAX_ACCEL * self.ay
+        if self.ax != 0 and self.ay !=0:
+            self.ax = MAX_ACCEL * self.ax / np.sqrt(self.ax**2 + self.ay**2)
+            self.ay = MAX_ACCEL * self.ay / np.sqrt(self.ax**2 + self.ay**2)
+        
         self.vx += self.ax; self.vy += self.ay
         
         #tmp_vx = self.vx / np.sqrt(self.vx**2 + self.vy**2)
@@ -89,8 +91,14 @@ class Point():
         
         accel_x = 0; accel_y = 0;
         if len(self.local_points)-1 != 0:
-            tmp_x = (lpos_x-self.x)/float(len(self.local_points)-1)
-            tmp_y = (lpos_y-self.y)/float(len(self.local_points)-1)
+            diff_x = lpos_x-self.x; diff_y = lpos_y-self.y
+            if diff_x > 400: diff_x -= 800
+            if diff_x < -400: diff_x += 800
+            if diff_y > 400: diff_y -= 800
+            if diff_y < -400: diff_y += 800
+            
+            tmp_x = (diff_x)/float(len(self.local_points)-1)
+            tmp_y = (diff_y)/float(len(self.local_points)-1)
 
             if tmp_x != 0 or tmp_y != 0:
                 accel_x = tmp_x / np.sqrt(tmp_x**2 + tmp_y**2)
@@ -110,6 +118,10 @@ class Point():
             diff_y = self.y - lpoint.y
             
             if diff_x == 0 and diff_y == 0: continue
+            if diff_x > 400: diff_x -= 800
+            if diff_x < -400: diff_x += 800
+            if diff_y > 400: diff_y -= 800
+            if diff_y < -400: diff_y += 800
             
             tmp_x += diff_x / (diff_x**2 + diff_y**2)
             tmp_y += diff_y / (diff_x**2 + diff_y**2)

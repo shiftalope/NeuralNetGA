@@ -4,12 +4,13 @@ import Shapes
 import pygame
 
 class QuadTree():
-    def __init__(self, boundary, capacity=4):
+    def __init__(self, boundary, capacity=4, keys=None):
         self.boundary = boundary
         self.capacity = capacity
         self.divided = False
+        self.keys = keys
         
-        self.points = []
+        self.objects = []
         
     def divide(self):
         self.divided = True
@@ -25,40 +26,46 @@ class QuadTree():
         lr_rect = Shapes.Rect(Shapes.Point(cx + w/4., cy + h/4.), w/2., h/2.)
         self.lr = QuadTree(lr_rect, self.capacity)
     
-        for point in self.points:
-            self.ul.insert(point)
-            self.ur.insert(point)
-            self.ll.insert(point)
-            self.lr.insert(point)
+        for object in self.objects:
+            self.ul.insert(object)
+            self.ur.insert(object)
+            self.ll.insert(object)
+            self.lr.insert(object)
 
-        self.points = []
+        self.objects = []
         
-    def insert(self, point):
+    def insert(self, object):
+        if self.keys != None:
+            point = Shapes.Point(object.__dict__[self.keys[0]], object.__dict__[self.keys[1]])
+        else: point = object
+        
         if not self.boundary.pointInside(point): return
         
-        if(len(self.points) < self.capacity and self.divided == False):
-            self.points += [point]
+        if(len(self.objects) < self.capacity and self.divided == False):
+            self.objects += [object]
         else:
             if(self.divided == False): self.divide()
 
-            self.ul.insert(point)
-            self.ur.insert(point)
-            self.ll.insert(point)
-            self.lr.insert(point)
+            self.ul.insert(object)
+            self.ur.insert(object)
+            self.ll.insert(object)
+            self.lr.insert(object)
 
-    def getLocal(self, center, radius, lpoints = []):
+    def getLocal(self, center, radius, lpoints = [], keys=None):
+        if keys == None: keys = self.keys
         to_add = []
         if not self.boundary.circleInside(center, radius): return to_add
         else:
-            for lpoint in self.points:
-                if lpoint.dist(center) < radius: to_add += [lpoint]
+            for object in self.objects:
+                lpoint = Shapes.Point(object.__dict__[keys[0]], object.__dict__[keys[1]])
+                if lpoint.dist(center) < radius and self.keys == None: to_add += [object]
             
             if self.divided:
                 
-                to_add += self.ul.getLocal(center, radius, lpoints)
-                to_add += self.ur.getLocal(center, radius, lpoints)
-                to_add += self.ll.getLocal(center, radius, lpoints)
-                to_add += self.lr.getLocal(center, radius, lpoints)
+                to_add += self.ul.getLocal(center, radius, lpoints, keys)
+                to_add += self.ur.getLocal(center, radius, lpoints, keys)
+                to_add += self.ll.getLocal(center, radius, lpoints, keys)
+                to_add += self.lr.getLocal(center, radius, lpoints, keys)
     
         return to_add
         

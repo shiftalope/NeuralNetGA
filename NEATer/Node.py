@@ -63,12 +63,12 @@ class Network():
         for node in self.Nodes:
             if not node.is_iNode: node.updateOutVal()
 
-    def get_mutation(self, low=-2, high=2, iters=1):
+    def get_mutation(self, low=-2, high=2, iters=1, lr=1):
         mutation = copy.deepcopy(self)
         for node in mutation.Nodes:
             if node.is_iNode: continue
             for conn in range(len(node.iConn)):
-                new_val = node.iConn[conn][1]+random.uniform(low/float(iters), high/float(iters))
+                new_val = node.iConn[conn][1]+random.uniform(low/float(iters/lr), high/float(iters/lr))
                 if new_val > 1: new_val=1
                 if new_val < -1: new_val=-1
                 node.iConn[conn] = (node.iConn[conn][0], new_val)
